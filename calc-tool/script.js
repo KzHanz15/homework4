@@ -58,3 +58,41 @@ console.log('各科绩点明细：');
 console.table(withPoint);
 console.log(summarize(withPoint));
 console.log('空数组测试 GPA =', gpa([])); // 空数组不崩溃
+
+// ==================== 独立研究任务部分 ====================
+
+// ---- 研究任务1：排序深入研究（双字段排序）----
+// Array.prototype.sort 的比较函数返回值规则：
+//   返回负数 → a 排在 b 前面；返回正数 → b 排在 a 前面；返回 0 → 保持原相对顺序。
+// 现代 V8 的 sort 是稳定的，因此"先按类别再按分数"可写成两个条件拼接。
+// 用 [...list] 复制一份再排序，避免改动原数组（sort 默认原地修改）。
+const sortByCategoryThenScore = (list) =>
+  [...list].sort((a, b) => a.category.localeCompare(b.category) || b.score - a.score);
+
+console.log('—— 研究任务1：按【类别→分数】排序 ——');
+console.table(sortByCategoryThenScore(withPoint));
+
+// ---- 研究任务2：正则表达式初探（用正则清洗课程名中的多余空格）----
+// 正则 /\s+/g：\s 匹配任意空白(空格/制表/换行)，+ 匹配一个或多个，g 表示全局替换全部。
+// replace('\s+',' ') 把"连续多个空白"折叠成单个空格；trim() 再去掉首尾空白。
+const normalizeName = (name) => name.replace(/\s+/g, ' ').trim();
+
+console.log('—— 研究任务2：正则清洗多余空格 ——');
+console.log("'  C  语 言  ( 换行空格)' ->", normalizeName('  C  语\n言  '));
+
+// ---- 研究任务3：性能对比（for 循环 vs reduce）----
+// console.time('标识') 到 console.timeEnd('标识') 之间计时（毫秒）。
+const perfCompare = () => {
+  const big = Array.from({ length: 1000000 }, (_, i) => ({ v: i % 100 }));
+  console.time('reduce');
+  const sumA = big.reduce((acc, x) => acc + x.v, 0);
+  console.timeEnd('reduce');
+  console.time('for');
+  let sumB = 0;
+  for (let i = 0; i < big.length; i++) sumB += big[i].v;
+  console.timeEnd('for');
+  console.log('两法结果一致：', sumA === sumB);
+};
+
+console.log('—— 研究任务3：百万条求和耗时对比 ——');
+perfCompare();

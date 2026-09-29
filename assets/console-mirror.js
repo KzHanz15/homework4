@@ -49,7 +49,14 @@
     return ['  ' + head].concat(rows.map(function (r) { return '  ' + r; }));
   }
 
-  var _log = console.log, _error = console.error, _table = console.table;
+  var _log = console.log, _error = console.error, _table = console.table,
+      _time = console.time, _timeEnd = console.timeEnd, _timeMap = {};
+  console.time = function (label) { _timeMap[label] = performance.now(); _time(label); };
+  console.timeEnd = function (label) {
+    _timeEnd(label);
+    var ms = performance.now() - (_timeMap[label] || performance.now());
+    line('» ' + label + ': ~' + ms.toFixed(2) + ' ms（精确值见Console）', 'dim');
+  };
   console.log = function () {
     var parts = [];
     for (var i = 0; i < arguments.length; i++) parts.push(encode(arguments[i]));
